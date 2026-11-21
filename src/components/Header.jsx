@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, ShoppingCart, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, ShoppingCart } from 'lucide-react';
 
 export default function Header({ cartCount, onCartClick }) {
   return (
@@ -11,16 +11,16 @@ export default function Header({ cartCount, onCartClick }) {
             <ShoppingBag className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-xl font-bold tracking-tight text-gray-900">
+            <span className="text-xl font-bold tracking-tight text-gray-900 block leading-tight">
               Quick<span className="text-sky-600">Cart</span>
             </span>
-            <span className="hidden sm:inline-block ml-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Store
+            <span className="text-[11px] font-medium text-gray-500 tracking-tight block">
+              Shop Fast, Pay Easy
             </span>
           </div>
         </div>
 
-        {/* Home Navigation & Trust Badges */}
+        {/* Home Navigation */}
         <div className="flex items-center space-x-6">
           <nav className="flex items-center space-x-4">
             <a
@@ -30,11 +30,6 @@ export default function Header({ cartCount, onCartClick }) {
               Home
             </a>
           </nav>
-
-          <div className="hidden sm:flex items-center space-x-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Secure Checkout</span>
-          </div>
 
           {/* Cart Icon & Count */}
           <button

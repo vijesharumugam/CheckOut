@@ -9,15 +9,15 @@ The objective of this test plan is to verify the functional correctness, respons
 ## 2. Application Scope
 
 The application scope comprises a single-page React and Vite e-commerce checkout interface featuring:
-- **Header**: Store branding (`QuickCart`), navigation link, shopping cart badge with live quantity count, and secure checkout trust indicator.
+- **Header**: Store branding (`QuickCart`), navigation link, and shopping cart badge with live quantity count.
 - **Product Catalog**: Two synthetic products with fixed INR pricing:
   - Wireless Headphones (`₹1,499`, Electronics)
   - Smart Watch (`₹2,499`, Wearables)
   - Local vector illustrations (SVG) and immediate quantity adjustments.
 - **Shopping Cart**: Real-time line total calculations (`Price × Quantity`), item additions/removals, quantity increment/decrement with lower bound constraint (`minimum 1`), and empty cart messaging.
 - **Order Summary**: Subtotal, free delivery badge, and prominent order total calculated via integer arithmetic (preventing IEEE 754 floating-point inaccuracies).
-- **Checkout Form**: Mandatory Customer Name input, optional Customer Email input, inline accessible validation messages, and preservation of user inputs upon validation errors.
-- **Order Confirmation & Duplicate Protection**: Immediate submission locking, unique order reference generation (`QC-YYYYMMDD-XXX`), order breakdown display, and single-confirmation enforcement with reset capabilities.
+- **Checkout Form**: Mandatory Customer Name (*), mandatory Phone Number (*), mandatory Address (*), optional Customer Email input, inline accessible validation messages, and preservation of user inputs upon validation errors.
+- **Order Confirmation & Duplicate Protection**: Immediate submission locking, unique order reference generation (`QC-YYYYMMDD-XXX`), order breakdown display with delivery info, and single-confirmation enforcement with reset capabilities.
 
 Out of Scope:
 - External backend APIs, databases, payment gateways, and user authentication systems (by design specification).
@@ -32,7 +32,7 @@ Out of Scope:
 | **FR-02** | Quantity Controls | User can increment and decrement quantities; minimum quantity is strictly 1. |
 | **FR-03** | Item Removal | User can remove an item entirely from the cart via the remove control. |
 | **FR-04** | Line & Order Totals | Line total = `Price × Qty`. Order total = `Sum of Line Totals`. Integer math used. |
-| **FR-05** | Mandatory Name Validation | Submitting checkout without customer name is blocked; displays clear error message. |
+| **FR-05** | Mandatory Fields Validation | Submitting checkout without customer name, phone number, or address is blocked; displays clear error messages near respective inputs. |
 | **FR-06** | Empty Cart Validation | Submitting checkout with 0 items is blocked; displays empty cart error message. |
 | **FR-07** | Input Preservation | Cart items and entered customer name/email remain intact after validation errors. |
 | **FR-08** | Order Confirmation | Valid checkout displays unique reference (`QC-YYYYMMDD-XXX`), customer name, items, and total. |

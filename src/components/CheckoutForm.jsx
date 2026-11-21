@@ -1,11 +1,15 @@
 import React from 'react';
-import { User, Mail, AlertCircle, Lock, Loader2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, AlertCircle, Lock, Loader2 } from 'lucide-react';
 
 export default function CheckoutForm({
   customerName,
   customerEmail,
+  customerPhone,
+  customerAddress,
   onNameChange,
   onEmailChange,
+  onPhoneChange,
+  onAddressChange,
   onSubmit,
   isSubmitting,
   errors,
@@ -15,19 +19,13 @@ export default function CheckoutForm({
     <form
       onSubmit={onSubmit}
       noValidate
-      className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-6"
+      className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-5"
     >
-      <div className="flex items-center justify-between pb-3 border-b border-gray-100">
-        <div>
-          <h2 className="text-lg font-bold text-gray-900">Customer Details</h2>
-          <p className="text-xs text-gray-500">
-            Please enter your information to complete your order
-          </p>
-        </div>
-        <div className="flex items-center text-xs text-gray-500 space-x-1">
-          <Lock className="w-3.5 h-3.5 text-gray-400" />
-          <span>Encrypted</span>
-        </div>
+      <div className="pb-3 border-b border-gray-100">
+        <h2 className="text-lg font-bold text-gray-900">Customer Details</h2>
+        <p className="text-xs text-gray-500">
+          Please enter your information to complete your order
+        </p>
       </div>
 
       {/* Cart Validation Alert if user tries to checkout with empty cart */}
@@ -45,7 +43,7 @@ export default function CheckoutForm({
         </div>
       )}
 
-      {/* Customer Name (Mandatory) */}
+      {/* Customer Name (Mandatory *) */}
       <div className="space-y-1.5">
         <label
           htmlFor="customer-name"
@@ -84,6 +82,92 @@ export default function CheckoutForm({
           >
             <AlertCircle className="w-3.5 h-3.5" />
             <span>{errors.name}</span>
+          </p>
+        )}
+      </div>
+
+      {/* Phone Number (Mandatory *) */}
+      <div className="space-y-1.5">
+        <label
+          htmlFor="customer-phone"
+          className="block text-sm font-semibold text-gray-700"
+        >
+          Phone Number <span className="text-rose-500">*</span>
+        </label>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+            <Phone className="w-4 h-4" />
+          </div>
+          <input
+            id="customer-phone"
+            name="customerPhone"
+            type="tel"
+            placeholder="e.g. +91 98765 43210"
+            value={customerPhone}
+            onChange={(e) => onPhoneChange(e.target.value)}
+            disabled={isSubmitting}
+            aria-required="true"
+            aria-invalid={errors?.phone ? 'true' : 'false'}
+            aria-describedby={errors?.phone ? 'customer-phone-error' : undefined}
+            className={`w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border transition-colors outline-none focus:ring-2 ${
+              errors?.phone
+                ? 'border-rose-400 bg-rose-50/30 text-rose-900 focus:ring-rose-200'
+                : 'border-gray-300 text-gray-900 focus:border-sky-500 focus:ring-sky-100'
+            }`}
+          />
+        </div>
+        {errors?.phone && (
+          <p
+            id="customer-phone-error"
+            role="alert"
+            data-testid="customer-phone-error"
+            className="text-xs font-medium text-rose-600 flex items-center space-x-1 mt-1"
+          >
+            <AlertCircle className="w-3.5 h-3.5" />
+            <span>{errors.phone}</span>
+          </p>
+        )}
+      </div>
+
+      {/* Address (Mandatory *) */}
+      <div className="space-y-1.5">
+        <label
+          htmlFor="customer-address"
+          className="block text-sm font-semibold text-gray-700"
+        >
+          Address <span className="text-rose-500">*</span>
+        </label>
+        <div className="relative">
+          <div className="absolute top-3 left-3.5 pointer-events-none text-gray-400">
+            <MapPin className="w-4 h-4" />
+          </div>
+          <textarea
+            id="customer-address"
+            name="customerAddress"
+            rows={2}
+            placeholder="e.g. Flat 302, Green Valley Apartments, MG Road, Bengaluru, 560001"
+            value={customerAddress}
+            onChange={(e) => onAddressChange(e.target.value)}
+            disabled={isSubmitting}
+            aria-required="true"
+            aria-invalid={errors?.address ? 'true' : 'false'}
+            aria-describedby={errors?.address ? 'customer-address-error' : undefined}
+            className={`w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border transition-colors outline-none focus:ring-2 resize-none ${
+              errors?.address
+                ? 'border-rose-400 bg-rose-50/30 text-rose-900 focus:ring-rose-200'
+                : 'border-gray-300 text-gray-900 focus:border-sky-500 focus:ring-sky-100'
+            }`}
+          />
+        </div>
+        {errors?.address && (
+          <p
+            id="customer-address-error"
+            role="alert"
+            data-testid="customer-address-error"
+            className="text-xs font-medium text-rose-600 flex items-center space-x-1 mt-1"
+          >
+            <AlertCircle className="w-3.5 h-3.5" />
+            <span>{errors.address}</span>
           </p>
         )}
       </div>

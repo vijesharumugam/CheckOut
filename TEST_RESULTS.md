@@ -8,8 +8,8 @@
 - **Testing Engine**: Playwright Test v1.50.1
 - **Browser Tested**: Chromium 159.0.8154.6 (Playwright chromium v1255)
 - **Application URL**: `http://localhost:3000`
-- **Total Test Cases Executed**: 5 (3 Mandatory Automated + 2 Mandatory Manual Verification Scenarios)
-- **Tests Passed**: 5
+- **Total Test Cases Executed**: 6 (4 Automated Test Cases + 2 Manual Verification Scenarios)
+- **Tests Passed**: 6
 - **Tests Failed**: 0
 - **Pass Rate**: 100%
 - **Overall Quality Gate Status**: **PASSED**
@@ -19,15 +19,16 @@
 ## 2. Automated Test Execution Results
 
 ```text
-Running 5 tests using 1 worker
+Running 6 tests using 1 worker
 
-  ok 1 [chromium] › tests\checkout.spec.js:27:3 › Mini Checkout – Online Store Suite › TEST CASE 1: Successful Checkout (2.8s)
-  ok 2 [chromium] › tests\checkout.spec.js:79:3 › Mini Checkout – Online Store Suite › TEST CASE 2: Missing Required Field (813ms)
-  ok 3 [chromium] › tests\checkout.spec.js:116:3 › Mini Checkout – Online Store Suite › TEST CASE 3: Quantity and Total Calculation (1.2s)
-  ok 4 [chromium] › tests\checkout.spec.js:157:3 › Mini Checkout – Online Store Suite › EXTRA VERIFICATION: Empty Cart Checkout Prevention (737ms)
-  ok 5 [chromium] › tests\checkout.spec.js:178:3 › Mini Checkout – Online Store Suite › EXTRA VERIFICATION: Rapid Double-Click Duplicate Order Prevention (683ms)
+  ok 1 [chromium] › tests\checkout.spec.js:27:3 › UI VERIFICATION: Header and Customer Details UI updates (6.5s)
+  ok 2 [chromium] › tests\checkout.spec.js:45:3 › TEST CASE 1: Successful Checkout (2.2s)
+  ok 3 [chromium] › tests\checkout.spec.js:106:3 › TEST CASE 2: Missing Required Field (2.1s)
+  ok 4 [chromium] › tests\checkout.spec.js:151:3 › TEST CASE 3: Quantity and Total Calculation (2.3s)
+  ok 5 [chromium] › tests\checkout.spec.js:192:3 › EXTRA VERIFICATION: Empty Cart Checkout Prevention (1.5s)
+  ok 6 [chromium] › tests\checkout.spec.js:216:3 › EXTRA VERIFICATION: Rapid Double-Click Duplicate Order Prevention (1.6s)
 
-  5 passed (10.7s)
+  6 passed (28.4s)
 ```
 
 ### Detailed Breakdown

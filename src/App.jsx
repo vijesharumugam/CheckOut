@@ -12,6 +12,8 @@ export default function App() {
   const [cartItems, setCartItems] = useState([]);
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerAddress, setCustomerAddress] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderConfirmation, setOrderConfirmation] = useState(null);
@@ -71,6 +73,28 @@ export default function App() {
     }
   };
 
+  const handlePhoneChange = (val) => {
+    setCustomerPhone(val);
+    if (validationErrors.phone && val.trim()) {
+      setValidationErrors((prev) => {
+        const next = { ...prev };
+        delete next.phone;
+        return next;
+      });
+    }
+  };
+
+  const handleAddressChange = (val) => {
+    setCustomerAddress(val);
+    if (validationErrors.address && val.trim()) {
+      setValidationErrors((prev) => {
+        const next = { ...prev };
+        delete next.address;
+        return next;
+      });
+    }
+  };
+
   const handleEmailChange = (val) => {
     setCustomerEmail(val);
   };
@@ -86,7 +110,7 @@ export default function App() {
       return;
     }
 
-    // 2. Validate Cart & Customer Name
+    // 2. Validate Cart & Customer Information
     const errors = {};
     if (cartItems.length === 0) {
       errors.cart = 'Please add at least one product to your cart.';
@@ -96,9 +120,17 @@ export default function App() {
       errors.name = 'Customer name is required.';
     }
 
+    if (!customerPhone || customerPhone.trim() === '') {
+      errors.phone = 'Phone number is required.';
+    }
+
+    if (!customerAddress || customerAddress.trim() === '') {
+      errors.address = 'Address is required.';
+    }
+
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
-      // Cart items and customer input are strictly preserved
+      // Cart items and customer inputs are strictly preserved
       return;
     }
 
@@ -126,6 +158,8 @@ export default function App() {
         orderReference: orderRef,
         customerName: customerName.trim(),
         customerEmail: customerEmail.trim(),
+        customerPhone: customerPhone.trim(),
+        customerAddress: customerAddress.trim(),
         items: [...cartItems],
         totalAmount: orderTotal,
         timestamp: now.toLocaleDateString('en-IN', {
@@ -138,7 +172,6 @@ export default function App() {
       };
 
       setOrderConfirmation(confirmedOrder);
-      // Do not clear customer info or cart until user starts a new order
     } finally {
       setIsSubmitting(false);
       isLockedRef.current = false;
@@ -150,14 +183,11 @@ export default function App() {
     setCartItems([]);
     setCustomerName('');
     setCustomerEmail('');
+    setCustomerPhone('');
+    setCustomerAddress('');
     setValidationErrors({});
     isLockedRef.current = false;
     setIsSubmitting(false);
-  };
-
-  const scrollToProducts = () => {
-    const el = document.getElementById('products');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -177,20 +207,7 @@ export default function App() {
             onResetOrder={handleResetOrder}
           />
         ) : (
-          <div className="space-y-12">
-            {/* Hero / Intro */}
-            <div className="text-center max-w-2xl mx-auto space-y-2">
-              <span className="text-xs font-bold text-sky-600 uppercase tracking-widest bg-sky-50 px-3 py-1 rounded-full border border-sky-100">
-                Online Store
-              </span>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
-                Mini Checkout
-              </h1>
-              <p className="text-sm sm:text-base text-gray-600">
-                Browse our premium products, manage your cart, and complete your order smoothly.
-              </p>
-            </div>
-
+          <div className="space-y-10">
             {/* Product Section */}
             <ProductList
               products={products}
@@ -222,8 +239,12 @@ export default function App() {
                 <CheckoutForm
                   customerName={customerName}
                   customerEmail={customerEmail}
+                  customerPhone={customerPhone}
+                  customerAddress={customerAddress}
                   onNameChange={handleNameChange}
                   onEmailChange={handleEmailChange}
+                  onPhoneChange={handlePhoneChange}
+                  onAddressChange={handleAddressChange}
                   onSubmit={handlePlaceOrder}
                   isSubmitting={isSubmitting}
                   errors={validationErrors}

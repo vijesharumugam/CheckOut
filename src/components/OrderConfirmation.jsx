@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, PackageCheck, ArrowRight, RotateCcw, Calendar, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, PackageCheck, RotateCcw, Calendar, ShieldCheck, MapPin, Phone, Mail } from 'lucide-react';
 
 export default function OrderConfirmation({ order, onResetOrder }) {
   if (!order) return null;
@@ -51,6 +51,33 @@ export default function OrderConfirmation({ order, onResetOrder }) {
           </span>
         </div>
       </div>
+
+      {/* Customer & Delivery Information Card */}
+      {(order.customerAddress || order.customerPhone || order.customerEmail) && (
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 space-y-2.5 text-sm">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 pb-1 border-b border-gray-100">
+            Delivery Details
+          </h4>
+          {order.customerPhone && (
+            <div className="flex items-center space-x-2 text-gray-700">
+              <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <span className="font-medium" data-testid="confirmed-phone">{order.customerPhone}</span>
+            </div>
+          )}
+          {order.customerAddress && (
+            <div className="flex items-start space-x-2 text-gray-700">
+              <MapPin className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
+              <span className="font-medium" data-testid="confirmed-address">{order.customerAddress}</span>
+            </div>
+          )}
+          {order.customerEmail && (
+            <div className="flex items-center space-x-2 text-gray-700">
+              <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              <span className="text-xs text-gray-600">{order.customerEmail}</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Ordered Products Breakdown */}
       <div className="space-y-3">

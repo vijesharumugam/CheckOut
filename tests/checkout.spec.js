@@ -1,9 +1,36 @@
 import { test, expect } from '@playwright/test';
 import { createServer } from 'vite';
+import net from 'net';
 
 let server;
 
+function checkPort(port) {
+  return new Promise((resolve) => {
+    const socket = new net.Socket();
+    socket.setTimeout(800);
+    socket.once('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once('error', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.once('timeout', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    socket.connect(port, '127.0.0.1');
+  });
+}
+
 test.beforeAll(async () => {
+  const inUse = await checkPort(3000);
+  if (inUse) {
+    // Port 3000 is already active and serving
+    return;
+  }
+
   server = await createServer({
     configFile: './vite.config.js',
     server: { port: 3000 },
@@ -21,7 +48,31 @@ test.describe('Mini Checkout – Online Store Suite', () => {
   test.beforeEach(async ({ page }) => {
     // Open application with a clean state before each test
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: 'Mini Checkout' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Available Products' })).toBeVisible();
+  });
+
+  test('UI VERIFICATION: Header and Customer Details UI updates', async ({ page }) => {
+    // Verify "STORE" is NOT in the header near QuickCart
+    const header = page.locator('header');
+    await expect(header).toBeVisible();
+    await expect(header.getByText('Store', { exact: true })).not.toBeVisible();
+
+    // Verify 3-4 word slogan below QuickCart
+    await expect(header.getByText('Shop Fast, Pay Easy')).toBeVisible();
+
+    // Verify "Secure Checkout" is NOT in the header
+    await expect(header.getByText('Secure Checkout')).not.toBeVisible();
+
+    // Verify removed hero intro section is NOT visible
+    await expect(page.getByRole('heading', { name: 'Mini Checkout' })).not.toBeVisible();
+
+    // Verify "Encrypted" is NOT in the Customer Details section
+    const customerSection = page.locator('form');
+    await expect(customerSection.getByText('Encrypted')).not.toBeVisible();
+
+    // Verify Phone Number and Address fields exist and are marked required
+    await expect(page.getByLabel(/Phone Number \*/i)).toBeVisible();
+    await expect(page.getByLabel(/Address \*/i)).toBeVisible();
   });
 
   test('TEST CASE 1: Successful Checkout', async ({ page }) => {
@@ -40,11 +91,16 @@ test.describe('Mini Checkout – Online Store Suite', () => {
     await increaseBtn.click();
     await expect(page.getByTestId('quantity-prod-headphones')).toHaveText('2');
 
-    // 4. Enter a valid customer name
-    const nameInput = page.getByLabel(/Customer Name/i);
+    // 4. Enter valid customer details (Name, Phone, Address, Optional Email)
+    const nameInput = page.getByLabel(/Customer Name \*/i);
     await nameInput.fill('Vijesh');
 
-    // Optional: Enter email
+    const phoneInput = page.getByLabel(/Phone Number \*/i);
+    await phoneInput.fill('+91 98765 43210');
+
+    const addressInput = page.getByLabel(/Address \*/i);
+    await addressInput.fill('Flat 302, Green Valley Apartments, MG Road, Bengaluru, 560001');
+
     const emailInput = page.getByLabel(/Email Address/i);
     await emailInput.fill('vijesh@example.com');
 
@@ -59,6 +115,10 @@ test.describe('Mini Checkout – Online Store Suite', () => {
     // 7. Verify the customer name is correct
     const customerNameDisplay = page.getByTestId('confirmed-customer-name');
     await expect(customerNameDisplay).toHaveText('Vijesh');
+
+    // Verify Phone and Address displayed on confirmation
+    await expect(page.getByTestId('confirmed-phone')).toHaveText('+91 98765 43210');
+    await expect(page.getByTestId('confirmed-address')).toHaveText('Flat 302, Green Valley Apartments, MG Road, Bengaluru, 560001');
 
     // 8. Verify an order reference is displayed
     const orderRef = page.getByTestId('order-reference');
@@ -83,18 +143,26 @@ test.describe('Mini Checkout – Online Store Suite', () => {
     const addHeadphonesBtn = page.getByRole('button', { name: 'Add Wireless Headphones to Cart' });
     await addHeadphonesBtn.click();
 
-    // 3. Leave the customer name blank
-    const nameInput = page.getByLabel(/Customer Name/i);
+    // 3. Leave the customer name, phone, and address blank
+    const nameInput = page.getByLabel(/Customer Name \*/i);
     await expect(nameInput).toHaveValue('');
 
     // 4. Click Place Order
     const placeOrderBtn = page.getByRole('button', { name: 'Place Order' });
     await placeOrderBtn.click();
 
-    // 5. Verify the validation message appears
+    // 5. Verify the validation messages appear
     const nameError = page.getByTestId('customer-name-error');
     await expect(nameError).toBeVisible();
     await expect(nameError).toHaveText(/Customer name is required/i);
+
+    const phoneError = page.getByTestId('customer-phone-error');
+    await expect(phoneError).toBeVisible();
+    await expect(phoneError).toHaveText(/Phone number is required/i);
+
+    const addressError = page.getByTestId('customer-address-error');
+    await expect(addressError).toBeVisible();
+    await expect(addressError).toHaveText(/Address is required/i);
 
     // 6. Verify the checkout confirmation is not displayed
     const confirmation = page.getByTestId('order-confirmation');
@@ -155,9 +223,10 @@ test.describe('Mini Checkout – Online Store Suite', () => {
   });
 
   test('EXTRA VERIFICATION: Empty Cart Checkout Prevention', async ({ page }) => {
-    // Verify checkout blocked with empty cart
-    const nameInput = page.getByLabel(/Customer Name/i);
-    await nameInput.fill('Vijesh');
+    // Verify checkout blocked with empty cart even when required fields are filled
+    await page.getByLabel(/Customer Name \*/i).fill('Vijesh');
+    await page.getByLabel(/Phone Number \*/i).fill('+91 98765 43210');
+    await page.getByLabel(/Address \*/i).fill('Flat 302, MG Road');
 
     const placeOrderBtn = page.getByRole('button', { name: 'Place Order' });
     await placeOrderBtn.click();
@@ -169,8 +238,10 @@ test.describe('Mini Checkout – Online Store Suite', () => {
     // Confirmation must NOT be visible
     await expect(page.getByTestId('order-confirmation')).not.toBeVisible();
 
-    // Name must be preserved
-    await expect(nameInput).toHaveValue('Vijesh');
+    // Customer info must be preserved
+    await expect(page.getByLabel(/Customer Name \*/i)).toHaveValue('Vijesh');
+    await expect(page.getByLabel(/Phone Number \*/i)).toHaveValue('+91 98765 43210');
+    await expect(page.getByLabel(/Address \*/i)).toHaveValue('Flat 302, MG Road');
 
     await page.screenshot({ path: 'screenshots/manual-test-1-empty-cart-checkout.png', fullPage: true });
   });
@@ -179,8 +250,9 @@ test.describe('Mini Checkout – Online Store Suite', () => {
     const addHeadphonesBtn = page.getByRole('button', { name: 'Add Wireless Headphones to Cart' });
     await addHeadphonesBtn.click();
 
-    const nameInput = page.getByLabel(/Customer Name/i);
-    await nameInput.fill('Vijesh DoubleClick');
+    await page.getByLabel(/Customer Name \*/i).fill('Vijesh DoubleClick');
+    await page.getByLabel(/Phone Number \*/i).fill('+91 98765 43210');
+    await page.getByLabel(/Address \*/i).fill('Flat 302, MG Road');
 
     const placeOrderBtn = page.getByRole('button', { name: 'Place Order' });
 
